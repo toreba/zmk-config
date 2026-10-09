@@ -3,6 +3,7 @@
   #   nix build            -> result/zmk_{lh,rh}.uf2 + result/layout.json (overlay)
   #   nix run .#flash      -> copies them to the halves in bootloader mode
   #   nix run .#update     -> bumps the pinned deps hash after a west.yml change
+  #   nix run .#layout -- ~/glove80/layout.json  -> layout file for the overlay app
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
     zmk-nix = {
@@ -86,11 +87,21 @@
           flash = zmk-nix.packages.${system}.flash.override { inherit firmware; };
           update = zmk-nix.packages.${system}.update;
 
-          # layout.json for the MoergoLayerViz overlay, from the keymap.
+          # layout.json for the MoergoLayerViz overlay, from the keymap:
+          #   nix run .#layout                 -> prints it
+          #   nix run .#layout -- ~/glove80/layout.json   -> writes the file
+          #     the overlay app loads (macOS file dialogs can't open result/)
           layout = nixpkgs.legacyPackages.${system}.writeShellApplication {
             name = "layout";
             runtimeInputs = [ nixpkgs.legacyPackages.${system}.python3 ];
-            text = ''python3 -I ${./tools/keymap2moergo.py} "''${1:-${./config/glove80.keymap}}"'';
+            text = ''
+              if [ $# -gt 0 ]; then
+                python3 -I ${./tools/keymap2moergo.py} ${./config/glove80.keymap} > "$1"
+                echo "wrote $1 (reload it in MoergoLayerViz)"
+              else
+                python3 -I ${./tools/keymap2moergo.py} ${./config/glove80.keymap}
+              fi
+            '';
           };
         }
       );
