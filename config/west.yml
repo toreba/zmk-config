@@ -1,14 +1,25 @@
+# Firmware sources. Pinned; bump with `nix run .#update` (updates the hash
+# in flake.nix too) after changing a revision here.
 manifest:
-  defaults:
-    revision: v0.3
   remotes:
-    - name: zmkfirmware
-      url-base: https://github.com/zmkfirmware
-    # Additional modules containing boards/shields/custom code can be listed here as well
-    # See https://docs.zephyrproject.org/3.2.0/develop/west/manifest.html#projects
+    - name: moergo-sc
+      url-base: https://github.com/moergo-sc
+    - name: zzeneg
+      url-base: https://github.com/zzeneg
+    - name: ovandongen
+      url-base: https://github.com/ovandongen
   projects:
+    # MoErgo's ZMK distribution for the Glove80 (ZMK Studio included).
     - name: zmk
-      remote: zmkfirmware
+      remote: moergo-sc
+      revision: ce69e85f585c724142aae37ddf8a7e019ff19e93 # v26.09
       import: app/west.yml
+    # Raw HID transport + layer/key reports for the MoergoLayerViz overlay.
+    - name: zmk-raw-hid
+      remote: zzeneg
+      revision: 6a37765dfab6197292e7a9f47305dcf87386d56a
+    - name: zmk-hid-viz
+      remote: ovandongen
+      revision: 6a28994f93aac00d32200ed975ec441736e7d98f
   self:
     path: config
