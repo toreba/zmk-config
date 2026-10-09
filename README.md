@@ -19,13 +19,14 @@ nix build                                   # result/zmk_lh.uf2, result/zmk_rh.u
 nix run .#layout -- ~/glove80/layout.json   # layout file for the overlay app (then reload it there)
 ```
 
-Flash, **right half first**, then left. Each half appears as a USB drive and
-ejects itself when the copy is done:
+Flash, **right half first**, then left. Each half appears as a USB drive
+(on macOS named `NO NAME`, not the documented GLV80xHBOOT) and ejects itself
+when the copy is done:
 
-| Half  | Cable in | Press            | Drive        | Copy                                     |
-|-------|----------|------------------|--------------|------------------------------------------|
-| right | right    | Magic + `'`      | GLV80RHBOOT  | `cp result/zmk_rh.uf2 /Volumes/GLV80RHBOOT/` |
-| left  | left     | Magic + Esc      | GLV80LHBOOT  | `cp result/zmk_lh.uf2 /Volumes/GLV80LHBOOT/` |
+| Half  | Cable in | Press        | Copy (macOS)                               |
+|-------|----------|--------------|--------------------------------------------|
+| right | right    | Magic + `'`  | `cp result/zmk_rh.uf2 "/Volumes/NO NAME/"` |
+| left  | left     | Magic + Esc  | `cp result/zmk_lh.uf2 "/Volumes/NO NAME/"` |
 
 On Linux the drive mounts under `/run/media/$USER/` (or use `nix run .#flash`).
 Magic is the bottom-left key of the left half; "Esc" and "'" are the
