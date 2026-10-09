@@ -80,6 +80,14 @@
 
           flash = zmk-nix.packages.${system}.flash.override { inherit firmware; };
           update = zmk-nix.packages.${system}.update;
+
+          # layout.json for the MoergoLayerViz overlay, from the keymap:
+          #   nix run .#layout > layout.json
+          layout = nixpkgs.legacyPackages.${system}.writeShellApplication {
+            name = "layout";
+            runtimeInputs = [ nixpkgs.legacyPackages.${system}.python3 ];
+            text = ''python3 -I ${./tools/keymap2moergo.py} "''${1:-${./config/glove80.keymap}}"'';
+          };
         }
       );
 
