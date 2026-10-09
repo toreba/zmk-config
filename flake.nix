@@ -1,6 +1,6 @@
 {
   # Glove80 firmware, built with zmk-nix:
-  #   nix build            -> result/zmk_lh.uf2, result/zmk_rh.uf2
+  #   nix build            -> result/zmk_{lh,rh}.uf2 + result/layout.json (overlay)
   #   nix run .#flash      -> copies them to the halves in bootloader mode
   #   nix run .#update     -> bumps the pinned deps hash after a west.yml change
   inputs = {
@@ -23,7 +23,12 @@
     {
       packages = forAllSystems (
         system: rec {
-          default = firmware;
+          # nix build -> result/zmk_lh.uf2, result/zmk_rh.uf2, result/layout.json
+          default = nixpkgs.legacyPackages.${system}.runCommand "glove80" { } ''
+            mkdir $out
+            ln -s ${firmware}/zmk_lh.uf2 ${firmware}/zmk_rh.uf2 $out/
+            ${layout}/bin/layout > $out/layout.json
+          '';
 
           firmware = zmk-nix.legacyPackages.${system}.buildSplitKeyboard {
             name = "glove80-firmware";
@@ -81,8 +86,7 @@
           flash = zmk-nix.packages.${system}.flash.override { inherit firmware; };
           update = zmk-nix.packages.${system}.update;
 
-          # layout.json for the MoergoLayerViz overlay, from the keymap:
-          #   nix run .#layout > layout.json
+          # layout.json for the MoergoLayerViz overlay, from the keymap.
           layout = nixpkgs.legacyPackages.${system}.writeShellApplication {
             name = "layout";
             runtimeInputs = [ nixpkgs.legacyPackages.${system}.python3 ];
